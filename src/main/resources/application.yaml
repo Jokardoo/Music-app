@@ -1,0 +1,42 @@
+spring:
+  cache:
+    type: redis
+    cache-names: redis-cache
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_PASSWORD}
+
+
+  allow-bean-definition-overriding: true
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: music
+
+  datasource:
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${HOST}:5432/music_storage
+
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    default-schema: public
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+mybatis:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+
+security:
+  jwt:
+    secret: c2dzZHVraGdzay47cml1Z2hzZGxrdm0nO3ZzaWVmaGZ1aW9bd2pmO3F3amtscmZoO2l1eGNo
+    access: 3600
+    refresh: 2592000000
+
+springdoc:
+  override-with-generic-response: false
+
+

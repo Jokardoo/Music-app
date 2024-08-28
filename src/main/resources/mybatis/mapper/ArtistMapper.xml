@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="jokardoo.api.repositories.ArtistRepository">
+
+    <resultMap id="ArtistResultMap" type="jokardoo.api.domain.music.Artist">
+        <id property="id" column="artist_id"/>
+        <result property="name" column="artist_name"/>
+        <result property="description" column="artist_description"/>
+
+        <collection property="genres"
+                    ofType="jokardoo.api.domain.music.Genre"
+                    autoMapping="false">
+            <result property="name" column="tracks_genres_genre"/>
+        </collection>
+
+        <collection property="tracks"
+                    ofType="jokardoo.api.domain.music.Track"
+                    resultMap="TrackResultMap"
+                    autoMapping="false"/>
+
+    </resultMap>
+
+    <select id="findByName" resultMap="ArtistResultMap">
+        SELECT a.id as artist_id,
+        a.name as artist_name,
+        a.description as artist_description,
+        atr.track_id as artists_tracks_track_id,
+        tg.genre as tracks_genres_genre,
+        t.id as track_id,
+        t.name as track_name
+        t.full_time as track_full_time
+        FROM artists a
+        LEFT JOIN artists_tracks atr on a.id = atr.artist_id
+        LEFT JOIN tracks t on atr.track_id = t.id
+        LEFT JOIN tracks_genres tg on t.id = tg.track_id
+        WHERE a.name = #{name}
+    </select>
+
+    <delete id="delete">
+        DELETE FROM artists
+        WHERE id = #{id}
+    </delete>
+
+    <select id="findByGenre" resultMap="ArtistResultMap">
+        SELECT a.id as artist_id,
+        a.name as artist_name,
+        a.description as artist_description,
+        atr.track_id as artists_tracks_track_id,
+        tg.genre as tracks_genres_genre,
+        t.id as track_id,
+        t.name as track_name
+        t.full_time as track_full_time
+        FROM artists a
+        LEFT JOIN artists_tracks atr on a.id = atr.artist_id
+        LEFT JOIN tracks t on atr.track_id = t.id
+        LEFT JOIN tracks_genres tg on t.id = tg.track_id
+        WHERE tg.genre = #{genre}
+    </select>
+
+    <insert id="create" keyColumn="id" keyProperty="id">
+        INSERT INTO artists (name, description)
+        VALUES (#{name}, #{description});
+    </insert>
+
+    <update id="update">
+        UPDATE artists
+        SET name = ${artist.name}},
+        SET description = #{artist.description}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

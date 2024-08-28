@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="jokardoo.api.repositories.TrackRepository">
+    <resultMap id="TrackResultMap" type="jokardoo.api.domain.music.Track" autoMapping="false">
+        <id property="id" column="track_id"/>
+        <result property="name" column="track_name"/>
+        <result property="artist" column="artist_name"/>
+        <result property="downloadLink" column="track_download_link"/>
+        <result property="fullTime" column="track_full_time"/>
+
+    </resultMap>
+
+    <select id="findById" resultMap="TrackResultMap">
+        SELECT a.id as artist_id,
+        a.name as artist_name,
+        a.description as artist_description,
+        atr.track_id as artists_tracks_track_id,
+        tg.genre as tracks_genres_genre,
+        t.id as track_id,
+        t.name as track_name,
+        t.full_time as track_full_time,
+        t.download_link as track_download_link
+        FROM tracks t
+        LEFT JOIN tracks_genres tg on tg.track_id = t.id
+        LEFT JOIN artists_tracks atr on t.id = atr.track_id
+        LEFT JOIN artists a on atr.artist_id = a.id
+        WHERE t.id = #{id}
+    </select>
+    
+    <select id="findByName" resultMap="TrackResultMap">
+        SELECT a.id as artist_id,
+        a.name as artist_name,
+        a.description as artist_description,
+        atr.track_id as artists_tracks_track_id,
+        tg.genre as tracks_genres_genre,
+        t.id as track_id,
+        t.name as track_name,
+        t.full_time as track_full_time,
+        t.download_link as track_download_link
+        FROM tracks t
+        LEFT JOIN tracks_genres tg on tg.track_id = t.id
+        LEFT JOIN artists_tracks atr on t.id = atr.track_id
+        LEFT JOIN artists a on atr.artist_id = a.id
+        WHERE t.name = #{name}
+    </select>
+
+    <select id="findByTrackNameAndArtistName"  resultMap="TrackResultMap">
+        SELECT a.id as artist_id,
+        a.name as artist_name,
+        a.description as artist_description,
+        atr.track_id as artists_tracks_track_id,
+        tg.genre as tracks_genres_genre,
+        t.id as track_id,
+        t.name as track_name,
+        t.full_time as track_full_time,
+        t.download_link as track_download_link
+        FROM tracks t
+        LEFT JOIN tracks_genres tg on tg.track_id = t.id
+        LEFT JOIN artists_tracks atr on t.id = atr.track_id
+        LEFT JOIN artists a on atr.artist_id = a.id
+        WHERE t.name = #{trackName} AND a.name = #{artistName}
+    </select>
+
+    <select id="findByGenre" resultMap="TrackResultMap">
+        SELECT a.id as artist_id,
+        a.name as artist_name,
+        a.description as artist_description,
+        atr.track_id as artists_tracks_track_id,
+        tg.genre as tracks_genres_genre,
+        t.id as track_id,
+        t.name as track_name,
+        t.full_time as track_full_time,
+        t.download_link as track_download_link
+        FROM tracks_genres tg
+        LEFT JOIN tracks t on tg.track_id = t.id
+        LEFT JOIN artists_tracks atr on t.id = atr.artist_id
+        LEFT JOIN artists a on atr.artist_id = a.id
+        WHERE tg.genre = #{genre}
+    </select>
+    
+    <update id="update">
+        UPDATE tracks
+        SET name = #{track.name},
+        full_time = #{track.fullTime},
+        download_link = #{track.downloadLink},
+        artist = #{track.artist}
+        WHERE id = #{track.id}
+    </update>
+
+    <insert id="assignToArtistById">
+        INSERT INTO artists_tracks (artist_id, track_id)
+        VALUES (#{artistId}, #{trackId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM tracks
+        WHERE id = #{id}
+    </delete>
+
+    <insert id="create" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO tracks (name, full_time, download_link, artist)
+        VALUES (#{track.name}, #{track.fullTime}, #{track.downloadLink}, #{track.artist})
+    </insert>
+
+</mapper>

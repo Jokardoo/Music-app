@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="jokardoo.api.repositories.UserRepository">
+    <resultMap id="UserResultMap" type="jokardoo.api.domain.user.User" autoMapping="false">
+        <id property="id" column="user_id"/>
+        <result property="name" column="user_name"/>
+        <result property="username" column="user_username"/>
+        <result property="password" column="user_password"/>
+        <result property="email" column="user_email"/>
+
+        <collection property="roles" ofType="jokardoo.api.domain.user.Role" autoMapping="false">
+            <result property="name" column="users_roles_role"/>
+        </collection>
+
+        <collection property="tracks"
+                    ofType="jokardoo.api.domain.music.Track"
+                    resultMap="jokardoo.api.repositories.TrackRepository.TrackResultMap"
+                    autoMapping="false"/>
+
+    </resultMap>
+
+    <select id="findById" resultMap="UserResultMap">
+        SELECT u.id as user_id,
+        u.username as user_username,
+        u.name as user_name,
+        u.email as user_email,
+        u.password as user_password,
+        ur.role as user_role_role,
+        ut.track_id as user_track_track_id,
+        t.name as track_name,
+        t.id as track_id,
+        a.name as artist_name
+        FROM users u
+        LEFT JOIN users_roles ur on u.id = ur.user_id
+        LEFT JOIN users_tracks ut on u.id = ut.user_id
+        LEFT JOIN tracks t on ut.track_id = t.id
+        LEFT JOIN artists_tracks at on t.id = at.track_id
+        LEFT JOIN artists a on at.artist_id = a.id
+        WHERE u.id = #{id}
+    </select>
+
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT u.id as user_id,
+        u.username as user_username,
+        u.name as user_name,
+        u.email as user_email,
+        u.password as user_password,
+        ur.role as user_role_role,
+        ut.track_id as user_track_track_id,
+        t.name as track_name,
+        t.id as track_id,
+        a.name as artist_name
+        FROM users u
+        LEFT JOIN users_roles ur on u.id = ur.user_id
+        LEFT JOIN users_tracks ut on u.id = ut.user_id
+        LEFT JOIN tracks t on ut.track_id = t.id
+        LEFT JOIN artists_tracks at on t.id = at.track_id
+        LEFT JOIN artists a on at.artist_id = a.id
+        WHERE u.username = #{username}
+    </select>
+
+    <update id="update">
+        UPDATE users
+        SET username = #{username},
+        password = #{password},
+        name = #{name}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="create" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO users
+        (username, name, password, email)
+        VALUES
+        (#{username}, #{name}, #{password}, #{email})
+    </insert>
+
+    <insert id="insertUserRole">
+        INSERT INTO users_roles (user_id, role)
+        VALUES
+        (#{userId}, #{role})
+    </insert>
+
+    <select id="isTrackContains" resultType="boolean">
+        SELECT exists(
+        SELECT 1
+        FROM users_tracks
+        WHERE user_id = #{userId} AND
+        track_id = #{trackId}
+        )
+    </select>
+
+    <delete id="delete">
+        DELETE FROM users
+        WHERE id = #{id}
+    </delete>
+</mapper>

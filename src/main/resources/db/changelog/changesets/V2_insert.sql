@@ -1,0 +1,1 @@
+INSERT INTO artists (name, description) VALUES ('Muse', 'super');
