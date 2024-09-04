@@ -1,11 +1,14 @@
 package jokardoo.api.web.dto.track;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jokardoo.api.web.dto.validation.OnCreate;
 import jokardoo.api.web.dto.validation.OnUpdate;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+
+import java.util.Map;
 
 @Data
 @Schema(description = "TrackDTO")
@@ -34,4 +37,13 @@ public class TrackDto {
 
     @Schema(description = "Full time in seconds", example = "211")
     private int fullTime;
+
+    @Schema(description = "Original text lines", example = "I can't get these memories out of my mind")
+    private Map<Integer, String> originalTextMap;
+
+    @Schema(description = "Translate text lines", example = "Я не могу выбросить эти воспоминания из головы")
+    private Map<Integer, String> translateTextMap;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String file;
 }

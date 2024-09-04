@@ -1,13 +1,15 @@
 package jokardoo.api.repositories.mappers;
 
 import jokardoo.api.domain.music.Artist;
-import jokardoo.api.domain.music.Genre;
 import jokardoo.api.domain.music.Track;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ArtistRowMapper {
 
@@ -42,20 +44,16 @@ public class ArtistRowMapper {
                 artist.setName(resultSet.getString("artist_name"));
                 artist.setDescription(resultSet.getString("artist_description"));
 
-                artist.setGenres(genres);
                 artist.setTracks(tracks);
 
                 return artist;
             }
 
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
-
-
 
 
     @SneakyThrows

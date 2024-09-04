@@ -10,7 +10,7 @@ public interface ArtistService {
     Artist getByName(String name);
 
     Artist getById(Long id);
-    
+
     void delete(Long id);
 
     Set<Artist> getByGenre(String genre);
@@ -19,7 +19,7 @@ public interface ArtistService {
 
     Artist create(String name, String description);
 
-    void update(Artist artist, Long id);
+    public void update(Artist artist);
 
     boolean isArtistContains(String artistName);
 }

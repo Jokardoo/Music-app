@@ -1,20 +1,16 @@
 package jokardoo.api.services;
 
-import jokardoo.api.domain.music.Artist;
-import jokardoo.api.domain.music.Genre;
 import jokardoo.api.domain.music.Track;
-import org.apache.ibatis.annotations.Param;
-
+import jokardoo.api.domain.music.TrackFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TrackService {
-    List<Track> getByName(String name);
+    List<Track> getAllByName(String name);
 
     Track getById(long id);
 
-    Track update(Track track);
+    Track save(Track track);
 
     List<Track> getByTrackNameAndArtistName(String trackName, String artistName);
 
@@ -22,8 +18,7 @@ public interface TrackService {
 
     void delete(Long id);
 
-    Track create(Track track, Genre genre);
-
+    void uploadFile(Long id, TrackFile file);
 
     void assignToArtistById(Long trackId, Long artistId);
 

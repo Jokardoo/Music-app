@@ -1,15 +1,15 @@
 package jokardoo.api.config;
 
+import io.minio.MinioClient;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import jokardoo.api.web.mappers.TrackMapper;
+import jokardoo.api.services.properties.MinioProperties;
 import jokardoo.api.web.security.JwtTokenFilter;
 import jokardoo.api.web.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +27,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @RequiredArgsConstructor(onConstructor = @__(@Lazy))
-@EnableMethodSecurity   // Для возможности написания кастомого security
+@EnableMethodSecurity   // Для возможности написания кастомного security
 public class ApplicationConfig {
 
     private final ApplicationContext applicationContext;
 
     private final JwtTokenProvider tokenProvider;
+    private final MinioProperties minioProperties;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -42,6 +43,14 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public MinioClient minioClient() {
+        return MinioClient.builder()
+                .endpoint(minioProperties.getUrl())
+                .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
+                .build();
     }
 
     @Bean
@@ -94,7 +103,7 @@ public class ApplicationConfig {
                 .anonymous().disable()  // Запрещаем доступ анонимам
                 .addFilterBefore(new JwtTokenFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class); //Помещаем JwtTokenFilter (который сами и пишем) перед фильтром UsernamePasswordAuthenticationFilter
 
-                // JwtTokenFilter - это как раз и есть авторизация на токенах
+        // JwtTokenFilter - это как раз и есть авторизация на токенах
         return httpSecurity.build();
     }
 }

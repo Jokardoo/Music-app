@@ -1,8 +1,5 @@
 package jokardoo.api.repositories.mappers;
 
-import jokardoo.api.domain.exceptions.TrackNotFoundException;
-import jokardoo.api.domain.music.Artist;
-import jokardoo.api.domain.music.Genre;
 import jokardoo.api.domain.music.Track;
 import lombok.SneakyThrows;
 
@@ -37,7 +34,7 @@ public class TrackRowMapper {
     }
 
     @SneakyThrows
-    public static Optional<Track>  rowMap(ResultSet resultSet) {
+    public static Optional<Track> rowMap(ResultSet resultSet) {
 
 
         while (resultSet.next()) {
@@ -52,7 +49,7 @@ public class TrackRowMapper {
             curTrack.setFullTime(resultSet.getInt("track_full_time"));
             curTrack.setDownloadLink(resultSet.getString("download_link"));
 
-            return Optional.ofNullable(curTrack) ;
+            return Optional.ofNullable(curTrack);
         }
         return null;
     }

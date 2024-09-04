@@ -1,18 +1,13 @@
 package jokardoo.api.services.impl;
 
 import jokardoo.api.domain.exceptions.TrackNotFoundException;
-import jokardoo.api.domain.music.Artist;
-import jokardoo.api.domain.music.Genre;
 import jokardoo.api.domain.music.Track;
+import jokardoo.api.domain.music.TrackFile;
 import jokardoo.api.repositories.TrackRepository;
-import jokardoo.api.repositories.impl.TrackRepositoryImpl;
 import jokardoo.api.services.ArtistService;
+import jokardoo.api.services.FileService;
 import jokardoo.api.services.TrackService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,63 +20,48 @@ public class TrackServiceImpl implements TrackService {
 
     private final TrackRepository trackRepository;
     private final ArtistService artistService;
+    private final FileService fileService;
 
     @Transactional(readOnly = true)
     @Override
-    @Cacheable(value = "TrackService::getByName", key = "#name")
-    public List<Track> getByName(String name) {
-        return trackRepository.findByName(name);
+//    @Cacheable(value = "TrackService::getByName", key = "#name")
+    public List<Track> getAllByName(String name) {
+        return trackRepository.findAllByName(name);
     }
 
     @Transactional(readOnly = true)
     @Override
-    @Cacheable(value = "TrackService::getById", key = "#id")
+//    @Cacheable(value = "TrackService::getById", key = "#id")
     public Track getById(long id) {
-        return trackRepository.findById(id);
+        return trackRepository.findById(id).orElseThrow();
     }
 
     @Transactional
     @Override
-    @Caching(put = {
-            @CachePut(value = "TrackService::getById", key = "#track.id"),
-            @CachePut(value = "TrackService::getByName", key = "#track.name"),
-            @CachePut(value = "TrackService::getByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
-    })
-    public Track update(Track track) {
-
-        if (trackRepository.findById(track.getId()) != null) {
-            trackRepository.update(track);
-        }
-
+//    @Caching(put = {
+//            @CachePut(value = "TrackService::getById", key = "#track.id"),
+//            @CachePut(value = "TrackService::getByName", key = "#track.name"),
+//            @CachePut(value = "TrackService::getByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
+//    })
+    public Track save(Track track) {
+        trackRepository.save(track);
         return track;
     }
 
     @Transactional(readOnly = true)
     @Override
-    @Cacheable(value = "TrackService::getByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
+//    @Cacheable(value = "TrackService::getByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
     public List<Track> getByTrackNameAndArtistName(String trackName, String artistName) {
-        return trackRepository.findByTrackNameAndArtistName(trackName, artistName);
+        return trackRepository.findAllByNameAndArtist(trackName, artistName);
     }
 
     @Transactional
     @Override
-    @CacheEvict(value = "TrackService::getById", key = "#id")
+//    @CacheEvict(value = "TrackService::getById", key = "#id")
     public void delete(Long id) {
-        trackRepository.delete(id);
+        trackRepository.deleteById(id);
     }
 
-    @Transactional
-    @Override
-    @Caching(cacheable = {
-            @Cacheable(value = "TrackService::getById", key = "#track.id"),
-            @Cacheable(value = "TrackService::getByName", key = "#track.name"),
-            @Cacheable(value = "TrackService::getByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
-    })
-    public Track create(Track track, Genre genre) {
-        Track createdTrack = trackRepository.create(track, genre);
-        return createdTrack;
-
-    }
 
     @Transactional
     @Override
@@ -96,9 +76,9 @@ public class TrackServiceImpl implements TrackService {
     }
 
     @Override
-    @Cacheable(value = "TrackService::getOneByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
+//    @Cacheable(value = "TrackService::getOneByTrackNameAndArtistName", key = "#trackName + '.' + #artistName")
     public Track getOneByTrackNameAndArtistName(String trackName, String artistName) {
-        Optional<Track> trackOptional = trackRepository.findOneByTrackNameAndArtistName(trackName, artistName);
+        Optional<Track> trackOptional = trackRepository.findByNameAndArtist(trackName, artistName);
 
         return trackOptional.orElseThrow(() -> new TrackNotFoundException("Track with this artist and track name not found!"));
     }
@@ -109,6 +89,13 @@ public class TrackServiceImpl implements TrackService {
         return trackRepository.findByGenre(genre);
     }
 
-
-
+    @Override
+    @Transactional
+//    @CacheEvict(value = "TrackService::getById", key = "#id")
+    public void uploadFile(Long id, TrackFile file) {
+        Track track = getById(id);
+        String fileName = fileService.upload(file);
+        track.setFile(fileName);
+        trackRepository.save(track);
+    }
 }

@@ -1,11 +1,7 @@
 package jokardoo.api.services;
 
-import jokardoo.api.domain.user.Role;
 import jokardoo.api.domain.user.User;
-import jokardoo.api.web.dto.user.UserDto;
 import org.springframework.data.repository.query.Param;
-
-import java.util.Optional;
 
 public interface UserService {
 

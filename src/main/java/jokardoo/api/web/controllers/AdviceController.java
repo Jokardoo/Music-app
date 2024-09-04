@@ -27,6 +27,12 @@ public class AdviceController {
         return new ExceptionBody(e.getMessage());
     }
 
+    @ExceptionHandler(FileUploadException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionBody handleFileUpload(FileUploadException e) {
+        return new ExceptionBody(e.getMessage());
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionBody handleIllegalState(IllegalStateException e) {
@@ -75,10 +81,9 @@ public class AdviceController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionBody handleException(Exception e) {
+        e.printStackTrace();
         return new ExceptionBody("Internal error");
     }
-
-
 
 
 }

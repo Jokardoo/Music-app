@@ -34,8 +34,9 @@ public class JwtTokenFilter extends GenericFilterBean {
                 if (authentication != null) {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
+            } catch (ResourceNotFoundException ignored) {
+
             }
-            catch (ResourceNotFoundException ignored) {}
 
         }
         filterChain.doFilter(servletRequest, servletResponse);
