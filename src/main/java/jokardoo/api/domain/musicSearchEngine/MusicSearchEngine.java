@@ -4,12 +4,9 @@ import jokardoo.api.domain.music.Track;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MusicSearchEngine {
@@ -28,14 +25,104 @@ public class MusicSearchEngine {
     private static final String TRACK_NAME = PATH_TO_TRACK_INFO + " > a.track__info-l > div.track__title";
 
     @SneakyThrows
-    public static List<Track> getMusicList(String songName) {
-        Document page = Jsoup.connect(URL_FORMAT + "search?q=" + songName).get();
+    public static Set<Track> getMusicList(String songName) {
+        String resultString = songName.toLowerCase().replace(" ", "+");
+
+        Set<Track> trackList = new HashSet<>();
+        boolean hasNextPage = true;
+        int curPage = 1;
+
+        while (hasNextPage) {
+            trackList.addAll(getAllTracksOnPage(songName, curPage));
+            curPage++;
+            hasNextPage = hasNextPage(songName, curPage);
+        }
+
+
+//        Document page = Jsoup.connect(URL_FORMAT + "search?q=" + resultString).get();
+//
+//
+//
+//        // выборка элементов - треков с нашей страницы
+//        Elements tracks = page.select(PATH_TO_TRACK_LIST).select("li");
+//
+//
+//        //добавляем с 1-го листа
+//        for (int i = 0; i < tracks.size(); i++) {
+//            // Название группы у данного трека
+//            String artistName = page.select(TRACK_ARTIST_NAME).get(i).text();
+//
+//            // Название самой песни данного трека
+//            String trackName = page.select(TRACK_NAME).get(i).text();
+//
+//            int trackTime = parseTrackTime(page.select(TRACK_FULL_TIME).get(i).text());
+//            // Ссылка на скачивание данного трека
+//            String downloadLink = page.select(TRACK_DOWNLOAD_LINK).get(i).attr("href");
+//
+//            Track currentTrack = new Track();
+//
+//            //TODO добавить определение жанра
+//            currentTrack.setName(trackName);
+//            currentTrack.setArtist(artistName);
+//            currentTrack.setFullTime(trackTime);
+//            currentTrack.setTrackGenre("Unknown");
+//            currentTrack.setDownloadLink(downloadLink);
+//
+//            trackList.add(currentTrack);
+//        }
+//
+
+        return trackList;
+    }
+
+
+    @SneakyThrows
+    private static boolean hasNextPage(String songName, int pageNum) {
+//        String resultString = songName.toLowerCase().replace(" ", "+");
+        Document page;
+
+        // тут находятся все отображаемые страницы
+        String PAGES = "body > main.content > div.container > div#pjax-container > div > div > section > ul > li.pagination__item";
+
+
+        if (pageNum == 1) {
+            page = Jsoup.connect(URL_FORMAT + "search/start/" + pageNum + " ?q=" + songName).get();
+        } else {
+            int temp = ((pageNum - 1) * 48);
+            page = Jsoup.connect(URL_FORMAT + "search/start/" + temp + " ?q=" + songName).get();
+        }
+        Elements elements = page.select(PAGES);
+
+        for (int i = 0; i < elements.size(); i++) {
+
+            if (elements.get(i).text().matches("\\d+") && Integer.parseInt(elements.get(i).text()) >= pageNum) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    @SneakyThrows
+    private static List<Track> getAllTracksOnPage(String songName, int pageNum) {
+        String resultString = songName.toLowerCase().replace(" ", "+");
+        Document page;
+
+        if (pageNum == 1) {
+            page = Jsoup.connect(URL_FORMAT + "search/start/" + pageNum + " ?q=" + resultString).get();
+        } else {
+            int temp = ((pageNum - 1) * 48);
+            page = Jsoup.connect(URL_FORMAT + "search/start/" + temp + " ?q=" + resultString).get();
+        }
+
 
         List<Track> trackList = new ArrayList<>();
 
         // выборка элементов - треков с нашей страницы
         Elements tracks = page.select(PATH_TO_TRACK_LIST).select("li");
 
+
+        //добавляем с 1-го листа
         for (int i = 0; i < tracks.size(); i++) {
             // Название группы у данного трека
             String artistName = page.select(TRACK_ARTIST_NAME).get(i).text();
@@ -58,22 +145,33 @@ public class MusicSearchEngine {
 
             trackList.add(currentTrack);
         }
+
+
         return trackList;
     }
 
 
     public static Optional<Track> getOneByArtistAndTrackName(String artist, String trackName) {
         // Сначала ищем все треки по исполнителю
-        List<Track> tracks = getMusicList(artist);
+        Set<Track> tracks = getMusicList(artist);
 
-        return tracks.stream()
-                .filter(track -> track.getName().trim().equalsIgnoreCase(trackName.trim()))
-                .findFirst();
+        Track response = null;
+        for (Track track : tracks) {
+            System.out.println("result = " + track.getName());
+            if (trackName.trim().equalsIgnoreCase(track.getName().trim())) {
+                response = track;
+                break;
+            }
+        }
+        return Optional.ofNullable(response);
+//        return tracks.stream()
+//                .filter(track -> track.getName().trim().equalsIgnoreCase(trackName.trim()))
+//                .findFirst();
     }
 
     public static List<Track> getAllByArtistAndTrackName(String artist, String trackName) {
         // Сначала ищем все треки по исполнителю
-        List<Track> tracks = getMusicList(artist);
+        Set<Track> tracks = getMusicList(artist);
 
         return tracks.stream()
                 .filter(track -> track.getName().trim().equalsIgnoreCase(trackName.trim()))
@@ -91,8 +189,7 @@ public class MusicSearchEngine {
         String curMinutes;
         if (minutes.startsWith("0")) {
             curMinutes = minutes.substring(1);
-        }
-        else {
+        } else {
             curMinutes = minutes;
         }
 
@@ -107,10 +204,12 @@ public class MusicSearchEngine {
 
     public static void main(String[] args) {
         MusicSearchEngine searchEngine = new MusicSearchEngine();
-        List<Track> tracks = searchEngine.getMusicList("Synthwave");
+        Set<Track> tracks = searchEngine.getMusicList("Foo fighters");
+
+        int i = 1;
 
         for (Track t : tracks) {
-            System.out.println(t);
+            System.out.println(i++ + " - " + t.getName());
         }
     }
 }

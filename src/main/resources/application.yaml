@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
   cache:
     type: redis
     cache-names: redis-cache
@@ -27,8 +31,8 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
 
-mybatis:
-  mapper-locations: classpath:mybatis/mapper/*.xml
+#mybatis:
+#  mapper-locations: classpath:mybatis/mapper/*.xml
 
 security:
   jwt:
@@ -38,5 +42,11 @@ security:
 
 springdoc:
   override-with-generic-response: false
+
+minio:
+  bucket: ${MINIO_BUCKET}
+  url: ${MINIO_URL}
+  accessKey: ${MINIO_ACCESS_KEY}
+  secretKey: ${MINIO_SECRET_KEY}
 
 

@@ -18,7 +18,7 @@ public class CustomSecurityExpression {
     public boolean isItMuse(String name) {
         if (name.equalsIgnoreCase("muse")) {
             return false;
-        }
-        else return true;
+        } else return true;
     }
+
 }

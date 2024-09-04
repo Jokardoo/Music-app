@@ -1,6 +1,6 @@
 package jokardoo.api.domain.music;
 
-public enum Genre {
+public enum GenreEnum {
     ROCK,
     POP,
     RAP,

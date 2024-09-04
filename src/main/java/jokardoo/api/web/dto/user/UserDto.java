@@ -6,13 +6,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jokardoo.api.domain.music.Artist;
 import jokardoo.api.domain.music.Track;
-import jokardoo.api.domain.user.Role;
 import jokardoo.api.web.dto.validation.OnCreate;
 import jokardoo.api.web.dto.validation.OnUpdate;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -43,12 +41,14 @@ public class UserDto {
     @Schema(description = "Password", example = "1234567")    // Название поля класса для Swagger'a и его пример
     @NotNull(message = "Password cannot be null!")
     @Length(min = 6, max = 255, message = "Password should be bigger than 6 and smaller than 255", groups = {OnCreate.class, OnUpdate.class})
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)  // Все Dto, которые к нам будут приходить, не будут иметь поля пароля
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    // Все Dto, которые к нам будут приходить, не будут иметь поля пароля
     private String password;
 
     @Schema(description = "Password confirmation", example = "1234567")
     @NotNull(message = "Password confirmation cannot be null!")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)  // Все Dto, которые к нам будут приходить, не будут иметь поля пароля
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    // Все Dto, которые к нам будут приходить, не будут иметь поля пароля
     @Length(min = 6, message = "Password should be bigger than 6", groups = OnCreate.class)
     private String passwordConfirmation;
 

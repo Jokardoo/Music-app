@@ -11,7 +11,7 @@
         <result property="description" column="artist_description"/>
 
         <collection property="genres"
-                    ofType="jokardoo.api.domain.music.Genre"
+                    ofType="jokardoo.api.domain.music.GenreEnum"
                     autoMapping="false">
             <result property="name" column="tracks_genres_genre"/>
         </collection>

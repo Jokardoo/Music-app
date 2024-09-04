@@ -29,7 +29,7 @@
         LEFT JOIN artists a on atr.artist_id = a.id
         WHERE t.id = #{id}
     </select>
-    
+
     <select id="findByName" resultMap="TrackResultMap">
         SELECT a.id as artist_id,
         a.name as artist_name,
@@ -47,7 +47,7 @@
         WHERE t.name = #{name}
     </select>
 
-    <select id="findByTrackNameAndArtistName"  resultMap="TrackResultMap">
+    <select id="findByTrackNameAndArtistName" resultMap="TrackResultMap">
         SELECT a.id as artist_id,
         a.name as artist_name,
         a.description as artist_description,
@@ -80,7 +80,7 @@
         LEFT JOIN artists a on atr.artist_id = a.id
         WHERE tg.genre = #{genre}
     </select>
-    
+
     <update id="update">
         UPDATE tracks
         SET name = #{track.name},
